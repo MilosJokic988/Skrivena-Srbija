@@ -1,12 +1,12 @@
 import { useEffect, useMemo } from 'react'
-import { MapContainer, TileLayer, Marker, CircleMarker, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, CircleMarker, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
-import { CATEGORIES } from '../data/places'
+import { CATEGORIES, PLACES } from '../data/places'
 
 const SERBIA_CENTER = [44.05, 20.9]
 const SERBIA_BOUNDS = [
-  [41.6, 18.2],
-  [46.6, 23.6],
+  [39.8, 17.6],
+  [47.2, 24.2],
 ]
 
 function pinIcon(color, { visited, selected }) {
@@ -43,6 +43,30 @@ function FlyTo({ target }) {
   return null
 }
 
+// Na početku prikaži celu Srbiju, iznad donjeg panela na telefonu
+function InitialFit() {
+  const map = useMap()
+  useEffect(() => {
+    const bounds = L.latLngBounds(PLACES.map((p) => [p.lat, p.lng]))
+    const mobile = window.innerWidth < 900
+    map.fitBounds(bounds, {
+      paddingTopLeft: [24, mobile ? 80 : 40],
+      paddingBottomRight: [24, mobile ? window.innerHeight * 0.45 + 16 : 40],
+      animate: false,
+    })
+  }, [map])
+  return null
+}
+
+// Kad korisnik pomera ili dodirne mapu, javljamo da se panel spusti
+function MapTouch({ onTouch }) {
+  useMapEvents({
+    dragstart: () => onTouch?.(),
+    click: () => onTouch?.(),
+  })
+  return null
+}
+
 function FitUser({ position }) {
   const map = useMap()
   useEffect(() => {
@@ -51,7 +75,7 @@ function FitUser({ position }) {
   return null
 }
 
-export default function MapView({ places, visited, selectedId, onSelect, userPosition }) {
+export default function MapView({ places, visited, selectedId, onSelect, userPosition, onMapTouch }) {
   const selected = useMemo(() => places.find((p) => p.id === selectedId), [places, selectedId])
 
   return (
@@ -59,6 +83,7 @@ export default function MapView({ places, visited, selectedId, onSelect, userPos
       center={SERBIA_CENTER}
       zoom={7}
       minZoom={6}
+      zoomSnap={0.25}
       maxBounds={SERBIA_BOUNDS}
       maxBoundsViscosity={0.8}
       zoomControl={false}
@@ -92,6 +117,8 @@ export default function MapView({ places, visited, selectedId, onSelect, userPos
         />
       )}
 
+      <InitialFit />
+      <MapTouch onTouch={onMapTouch} />
       <FlyTo target={selected} />
       <FitUser position={userPosition} />
     </MapContainer>

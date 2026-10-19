@@ -19,7 +19,7 @@ function normalize(s) {
   return s
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/đ/g, 'dj')
 }
 
@@ -33,8 +33,11 @@ export default function App() {
     const hash = window.location.hash.slice(1)
     return PLACES.some((p) => p.id === hash) ? hash : null
   })
-  const [sheetOpen, setSheetOpen] = useState(!!selectedId)
+  // Donji panel na telefonu ima tri položaja: min (samo zaglavlje), mid i full
+  const [sheet, setSheet] = useState(selectedId ? 'full' : 'mid')
   const scrollRef = useRef(null)
+  const panelRef = useRef(null)
+  const drag = useRef(null)
 
   // Svaki novi prikaz počinje od vrha
   useEffect(() => {
@@ -67,7 +70,63 @@ export default function App() {
 
   function open(id) {
     setSelectedId(id)
-    setSheetOpen(true)
+    setSheet('full')
+  }
+
+  // Povlačenje panela prstom (samo na telefonu)
+  const isMobile = () => window.innerWidth < 900
+  const snapHeights = () => {
+    const panel = panelRef.current
+    const min =
+      panel.querySelector('.brand').offsetHeight + panel.querySelector('.tabs').offsetHeight
+    return { min, mid: window.innerHeight * 0.45, full: window.innerHeight * 0.88 }
+  }
+
+  function onDragStart(e) {
+    if (!isMobile()) return
+    drag.current = { y: e.clientY, h: panelRef.current.offsetHeight, moved: false, id: e.pointerId }
+  }
+
+  function onDragMove(e) {
+    const d = drag.current
+    if (!d) return
+    const dy = e.clientY - d.y
+    if (!d.moved && Math.abs(dy) < 6) return
+    if (!d.moved) {
+      d.moved = true
+      e.currentTarget.setPointerCapture(d.id)
+      panelRef.current.style.transition = 'none'
+    }
+    const { min, full } = snapHeights()
+    panelRef.current.style.height = `${Math.min(full, Math.max(min, d.h - dy))}px`
+  }
+
+  function onDragEnd(e) {
+    const d = drag.current
+    drag.current = null
+    if (!d || !d.moved) return
+    const panel = panelRef.current
+    const h = panel.offsetHeight
+    const dy = e.clientY - d.y
+    const snaps = snapHeights()
+    // Brz potez gore ili dole pomera za jedan položaj, inače bira najbliži
+    let next
+    if (Math.abs(dy) > 60) {
+      const order = ['min', 'mid', 'full']
+      const nearestStart = order.reduce((a, b) => (Math.abs(snaps[b] - d.h) < Math.abs(snaps[a] - d.h) ? b : a))
+      const i = order.indexOf(nearestStart) + (dy < 0 ? 1 : -1)
+      next = order[Math.max(0, Math.min(2, i))]
+      if (Math.abs(snaps[next] - h) > Math.abs(snaps[nearestStart] - h) && Math.abs(dy) < 120) next = nearestStart
+    } else {
+      next = Object.keys(snaps).reduce((a, b) => (Math.abs(snaps[b] - h) < Math.abs(snaps[a] - h) ? b : a))
+    }
+    panel.style.transition = ''
+    panel.style.height = ''
+    setSheet(next)
+  }
+
+  function cycleSheet() {
+    setSheet((s) => (s === 'min' ? 'mid' : s === 'mid' ? 'full' : 'min'))
   }
 
   function surprise() {
@@ -80,19 +139,25 @@ export default function App() {
   function goTab(id) {
     setTab(id)
     setSelectedId(null)
-    setSheetOpen(true)
+    setSheet((s) => (s === 'min' ? 'mid' : s))
     if (id === 'blizu' && status === 'idle') request()
   }
 
   return (
-    <div className={`app ${sheetOpen ? 'sheet-open' : ''}`}>
-      <aside className="panel" aria-label="Lista mesta">
+    <div className={`app sheet-${sheet}`}>
+      <aside className="panel" aria-label="Lista mesta" ref={panelRef}>
         <KilimBand className="panel__band" />
-        <header className="brand">
+        <header
+          className="brand"
+          onPointerDown={onDragStart}
+          onPointerMove={onDragMove}
+          onPointerUp={onDragEnd}
+          onPointerCancel={onDragEnd}
+        >
           <button
             className="brand__handle"
-            onClick={() => setSheetOpen((o) => !o)}
-            aria-label={sheetOpen ? 'Spusti panel' : 'Podigni panel'}
+            onClick={cycleSheet}
+            aria-label={sheet === 'full' ? 'Spusti panel' : 'Podigni panel'}
           />
           <div className="brand__row">
             <h1 className="brand__name">
@@ -199,6 +264,7 @@ export default function App() {
           selectedId={selectedId}
           onSelect={open}
           userPosition={position}
+          onMapTouch={() => isMobile() && setSheet('min')}
         />
         <button className="surprise" onClick={surprise}>
           <Motif color="var(--ochre)" size={20} />

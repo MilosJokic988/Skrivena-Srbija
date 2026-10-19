@@ -820,7 +820,7 @@ button {
     left: 0;
     right: 0;
     bottom: 0;
-    height: 46dvh;
+    height: 45dvh;
     border-right: 0;
     border-radius: 24px 24px 0 0;
     overflow: hidden;
@@ -828,8 +828,23 @@ button {
     transition: height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  .sheet-open .panel {
-    height: 86dvh;
+  .sheet-full .panel {
+    height: 88dvh;
+  }
+
+  /* Spušten panel: vidi se samo naslov i kartice */
+  .sheet-min .panel {
+    height: 148px;
+  }
+
+  .sheet-min .panel__scroll {
+    visibility: hidden;
+  }
+
+  .brand {
+    touch-action: none;
+    user-select: none;
+    cursor: grab;
   }
 
   .panel__band {
