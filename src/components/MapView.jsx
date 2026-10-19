@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { MapContainer, TileLayer, Marker, CircleMarker, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import { CATEGORIES, PLACES } from '../data/places'
+import SerbiaOutline from './SerbiaOutline'
 
 const SERBIA_CENTER = [44.05, 20.9]
 const SERBIA_BOUNDS = [
@@ -94,6 +95,8 @@ export default function MapView({ places, visited, selectedId, onSelect, userPos
         url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         maxZoom={19}
       />
+
+      <SerbiaOutline />
 
       {places.map((p) => (
         <Marker
