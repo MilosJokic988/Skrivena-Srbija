@@ -1,0 +1,903 @@
+/* ───────── Tokeni ───────── */
+:root {
+  --paper: #edeee6;
+  --paper-2: #e3e5da;
+  --card: #f6f7f1;
+  --ink: #1f2b27;
+  --ink-soft: #55615b;
+  --red: #a3322b;
+  --ochre: #d9a03c;
+  --line: rgba(31, 43, 39, 0.12);
+  --line-strong: rgba(31, 43, 39, 0.3);
+
+  --display: 'Unbounded', 'Arial Black', sans-serif;
+  --body: 'Manrope', system-ui, -apple-system, sans-serif;
+
+  --panel-w: 440px;
+  --radius-lg: 22px;
+  --radius-sm: 10px;
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ochre);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ───────── Raspored ───────── */
+.app {
+  display: grid;
+  grid-template-columns: var(--panel-w) 1fr;
+  height: 100%;
+}
+
+.panel {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--paper);
+  border-right: 1px solid var(--line);
+}
+
+.panel__band {
+  display: block;
+  flex: none;
+}
+
+.panel__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.stage {
+  position: relative;
+  min-width: 0;
+}
+
+.map {
+  position: absolute;
+  inset: 0;
+  background: #dfe3d6;
+}
+
+/* ───────── Zaglavlje ───────── */
+.brand {
+  flex: none;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 22px 24px 20px;
+}
+
+.brand__handle {
+  display: none;
+}
+
+.brand__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand__name {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 2.35rem;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+
+.brand__name span {
+  display: block;
+}
+
+.brand__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 7px 12px 7px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(237, 238, 230, 0.22);
+  font-size: 0.92rem;
+  color: rgba(237, 238, 230, 0.75);
+  transition: border-color 0.2s;
+}
+
+.brand__count b {
+  color: var(--ochre);
+  font-family: var(--display);
+  font-weight: 700;
+}
+
+.brand__count:hover {
+  border-color: var(--ochre);
+}
+
+.brand__count svg {
+  --paper: var(--ink);
+}
+
+.brand__lede {
+  margin: 14px 0 0;
+  max-width: 34ch;
+  font-size: 0.95rem;
+  color: rgba(237, 238, 230, 0.72);
+}
+
+/* ───────── Kartice za izbor pregleda ───────── */
+.tabs {
+  flex: none;
+  display: flex;
+  gap: 4px;
+  padding: 10px 16px 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.tabs__btn {
+  position: relative;
+  padding: 10px 10px 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+
+.tabs__btn.is-active {
+  color: var(--ink);
+}
+
+.tabs__btn.is-active::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 3px;
+  background: var(--red);
+  border-radius: 3px 3px 0 0;
+}
+
+/* ───────── Filteri ───────── */
+.filters {
+  padding: 16px 16px 4px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+
+.search:focus-within {
+  border-color: var(--ink);
+}
+
+.search svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  color: var(--ink);
+}
+
+.chips {
+  display: flex;
+  gap: 6px;
+  margin: 12px -16px 0;
+  padding: 0 16px 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  transition: background 0.15s, color 0.15s;
+}
+
+.chip__dot {
+  width: 9px;
+  height: 9px;
+  transform: rotate(45deg);
+  background: var(--c);
+}
+
+.chip.is-active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+/* ───────── Lista mesta ───────── */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 12px 120px;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 12px;
+  text-align: left;
+  border-radius: 16px;
+  transition: background 0.15s;
+}
+
+.card:hover {
+  background: var(--paper-2);
+}
+
+.card__motif {
+  flex: none;
+  margin-top: 2px;
+}
+
+.card__body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.card__name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.02rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 3px;
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+}
+
+.card__km {
+  color: var(--c);
+  font-weight: 700;
+}
+
+.card__teaser {
+  margin-top: 6px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.card__badge {
+  position: absolute;
+  top: 12px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--c);
+  color: #fff;
+}
+
+.card__badge svg {
+  width: 16px;
+  height: 16px;
+}
+
+.card:has(.card__badge) .card__body {
+  padding-right: 28px;
+}
+
+/* ───────── Detalji mesta ───────── */
+.detail__hero {
+  position: relative;
+  overflow: hidden;
+  padding: 72px 24px 26px;
+  background: var(--c);
+  color: #fff;
+  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.detail__weave {
+  position: absolute;
+  top: -10px;
+  right: -40px;
+  width: 300px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  transform: rotate(0deg);
+  pointer-events: none;
+  --paper: transparent;
+  -webkit-mask-image: linear-gradient(to left, #000 30%, transparent 95%);
+  mask-image: linear-gradient(to left, #000 30%, transparent 95%);
+}
+
+.detail__back {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  transition: background 0.15s;
+}
+
+.detail__back:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.detail__back svg {
+  width: 22px;
+  height: 22px;
+}
+
+.detail__cat {
+  position: relative;
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.detail__title {
+  position: relative;
+  margin: 6px 0 0;
+  max-width: 14ch;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 2rem;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.detail__region {
+  position: relative;
+  margin: 10px 0 0;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.detail__content {
+  padding: 22px 24px 120px;
+}
+
+.detail__teaser {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.detail__story {
+  margin: 14px 0 0;
+  max-width: 62ch;
+  color: #2f3b36;
+  line-height: 1.65;
+}
+
+.facts {
+  margin: 24px 0 0;
+  border-top: 1px solid var(--line);
+}
+
+.facts > div {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.facts dt {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.facts dd {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.dots {
+  display: inline-flex;
+  gap: 4px;
+  margin-right: 8px;
+  vertical-align: 1px;
+}
+
+.dots i {
+  width: 9px;
+  height: 9px;
+  transform: rotate(45deg);
+  border: 1.5px solid var(--c);
+}
+
+.dots i.on {
+  background: var(--c);
+}
+
+/* ───────── Dugmad ───────── */
+.actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.actions__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 20px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn--visit {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  color: var(--ink);
+}
+
+.btn--visit svg {
+  --paper: var(--card);
+}
+
+.btn--visit.is-on {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn--visit.is-on svg {
+  --paper: var(--ink);
+  color: var(--ochre);
+}
+
+.btn--visit:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.btn--ghost {
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+}
+
+.btn--ghost:hover {
+  background: var(--paper-2);
+}
+
+/* ───────── Prazna stanja ───────── */
+.empty {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.empty p {
+  max-width: 32ch;
+  margin: 0 auto 16px;
+}
+
+.near__note {
+  margin: 0;
+  padding: 18px 24px 4px;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+}
+
+/* ───────── Moj ćilim ───────── */
+.collection {
+  padding: 24px 24px 120px;
+}
+
+.collection__head h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.8rem;
+  letter-spacing: -0.02em;
+}
+
+.collection__head p {
+  margin: 8px 0 0;
+  max-width: 40ch;
+  color: var(--ink-soft);
+}
+
+.loom {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  margin: 22px 0 0;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  border: 1px solid var(--line);
+  --paper: var(--card);
+}
+
+.loom__cell {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  transition: transform 0.15s;
+}
+
+.loom__cell svg {
+  width: 100%;
+  height: auto;
+  max-width: 54px;
+}
+
+.loom__cell:hover {
+  transform: scale(1.08);
+}
+
+.loom__cell.is-on svg {
+  animation: weave 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.tally {
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 0;
+}
+
+.tally li {
+  display: grid;
+  grid-template-columns: 1fr 90px 40px;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+  font-size: 0.92rem;
+}
+
+.tally__bar {
+  height: 6px;
+  border-radius: 6px;
+  background: var(--paper-2);
+  overflow: hidden;
+}
+
+.tally__bar i {
+  display: block;
+  height: 100%;
+  background: var(--c);
+  border-radius: 6px;
+  transition: width 0.4s;
+}
+
+.tally__num {
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.collection__share {
+  width: 100%;
+  margin-top: 24px;
+}
+
+.collection__hint {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+/* ───────── Mapa: markeri i dugme ───────── */
+.pin-wrap {
+  background: none;
+  border: 0;
+}
+
+.pin {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2px 3px rgba(31, 43, 39, 0.35));
+  transition: transform 0.15s;
+}
+
+.pin svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.pin-outer {
+  fill: var(--c);
+  stroke: #fff;
+  stroke-width: 2.5;
+}
+
+.pin-inner {
+  fill: #fff;
+}
+
+.pin-core {
+  fill: var(--c);
+}
+
+.pin--visited .pin-inner {
+  fill: var(--ink);
+}
+
+.pin--visited .pin-core {
+  fill: var(--ochre);
+}
+
+.pin:hover {
+  transform: scale(1.15);
+}
+
+.pin--selected {
+  animation: pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1.4);
+}
+
+.surprise {
+  position: absolute;
+  z-index: 500;
+  right: 20px;
+  bottom: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 22px 0 18px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(31, 43, 39, 0.3);
+  transition: transform 0.15s;
+  --paper-bg: var(--ink);
+}
+
+.surprise svg {
+  --paper: var(--ink);
+}
+
+.surprise:hover {
+  transform: translateY(-2px);
+}
+
+.leaflet-container {
+  font-family: var(--body);
+}
+
+.leaflet-control-attribution {
+  font-size: 10px;
+  background: rgba(237, 238, 230, 0.8) !important;
+}
+
+/* ───────── Animacije ───────── */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.6);
+  }
+}
+
+@keyframes weave {
+  from {
+    transform: rotate(-90deg) scale(0.4);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ───────── Telefon: panel postaje donji list ───────── */
+@media (max-width: 899px) {
+  .app {
+    display: block;
+  }
+
+  .stage {
+    position: fixed;
+    inset: 0;
+  }
+
+  .panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 46dvh;
+    border-right: 0;
+    border-radius: 24px 24px 0 0;
+    overflow: hidden;
+    box-shadow: 0 -10px 40px rgba(31, 43, 39, 0.25);
+    transition: height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .sheet-open .panel {
+    height: 86dvh;
+  }
+
+  .panel__band {
+    display: none;
+  }
+
+  .brand {
+    padding: 8px 20px 16px;
+  }
+
+  .brand__handle {
+    display: block;
+    width: 100%;
+    height: 22px;
+    margin-bottom: 6px;
+    position: relative;
+  }
+
+  .brand__handle::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 9px;
+    width: 44px;
+    height: 5px;
+    margin-left: -22px;
+    border-radius: 5px;
+    background: rgba(237, 238, 230, 0.35);
+  }
+
+  .brand__name {
+    font-size: 1.65rem;
+  }
+
+  .brand__name span {
+    display: inline;
+  }
+
+  .brand__lede {
+    display: none;
+  }
+
+  .tabs {
+    padding: 4px 10px 0;
+  }
+
+  .surprise {
+    top: calc(14px + env(safe-area-inset-top));
+    bottom: auto;
+    right: 14px;
+    height: 46px;
+  }
+
+  .detail__hero {
+    padding-top: 66px;
+  }
+
+  .detail__title {
+    font-size: 1.7rem;
+  }
+
+  .loom {
+    padding: 8px;
+  }
+
+  .list,
+  .detail__content,
+  .collection {
+    padding-bottom: calc(40px + env(safe-area-inset-bottom));
+  }
+}
